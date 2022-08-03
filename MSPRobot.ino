@@ -3,10 +3,13 @@
 #include "SimpleRSLK.h"
 #include <driverlib.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <SPI.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+
+int count = 0;
 
 // WIFI METHODS AND VARIABLES
 
@@ -30,7 +33,7 @@ void pollBroker() {
   while (!client.connected()) {
     Serial.print("Connecting... ");
 
-    if (!client.connect("energiaClient", "ng8165", "aio_YOoT86vFIEE2dhRchNNUb47Fen7j")) {
+    if (!client.connect("energiaClient", "ryanachen", "aio_ALPe40WNq4C5A7Hz089DIJA0zFo5")) {
       Serial.println("Connection failed.");
     } else {
       Serial.print("Connection successful. ");
@@ -155,7 +158,24 @@ void loop() {
     stopBot();
   }
   
-  Serial.println(direction);
+  Serial.print(direction);
+  Serial.print(" ");
+  Serial.println(speed);
+  
+  /*
+  if(count >= 6){
+    
+    float temp = tmp006.readDieTempC();
+    temp = (temp * 9/5) + 32;
+    
+    char str[50];
+    sprintf(str, "%0.2f", temp);
+    client.publish("ryanachen/feeds/msp-robot.temperature", str);
+
+    count = 0;
+  }
+  count++;
+  */
   
   delay(500);
 }
