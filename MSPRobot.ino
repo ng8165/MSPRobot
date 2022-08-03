@@ -3,6 +3,7 @@
 #include "SimpleRSLK.h"
 #include <driverlib.h>
 #include <stdlib.h>
+#include <string.h>
 #include <SPI.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
@@ -13,11 +14,16 @@ char ssid[] = "eec172";
 char server[] = "io.adafruit.com";
 WiFiClient wifiClient;
 PubSubClient client(server, 1883, callback, wifiClient);
-uint8_t status;
+uint8_t direction, speed;
 
 void callback(char* topic, byte* payload, unsigned int length) {
   char* str = (char*) payload;
-  status = str[0] - '0';
+  
+  if (strcmp(topic, "ng8165/feeds/robot.direction") == 0) {
+    direction = str[0] - '0';
+  } else if (strcmp(topic, "ng8165/feeds/robot.speed") == 0) {
+    speed = str[0] - '0';
+  }
 }
 
 void pollBroker() {
@@ -30,10 +36,16 @@ void pollBroker() {
       Serial.print("Connection successful. ");
       
       if (client.subscribe("ng8165/feeds/robot.direction")) {
-        Serial.println("Subscription successful.");
-        break;
+        Serial.print("Direction successful. ");
+
+        if (client.subscribe("ng8165/feeds/robot.speed")) {
+          Serial.println("Speed successful.");
+          break;
+        } else {
+          Serial.println("Speed failed.");
+        }
       } else {
-        Serial.println("Subscription failed.");
+        Serial.println("Direction failed.");
       }
     }
 
@@ -79,12 +91,12 @@ void moveBot() {
   if (rSpeed >= 0) right_motor.directionForward();
   else right_motor.directionBackward();
 
-  left_motor.setSpeed(abs(lSpeed));
-  right_motor.setSpeed(abs(rSpeed));
+  left_motor.setSpeed(speed*abs(lSpeed));
+  right_motor.setSpeed(speed*abs(rSpeed));
 }
 
-void moveLeft() { lSpeed = -20; rSpeed = 20; moveBot(); }
-void moveRight() { lSpeed = 20; rSpeed = -20; moveBot(); }
+void moveLeft() { lSpeed = -10; rSpeed = 10; moveBot(); }
+void moveRight() { lSpeed = 10; rSpeed = -10; moveBot(); }
 void moveForward() { lSpeed = 20; rSpeed = 20; moveBot(); }
 void moveBackward() { lSpeed = -20; rSpeed = -20; moveBot(); }
 void stopBot() { lSpeed = 0; rSpeed = 0; moveBot(); }
@@ -98,7 +110,7 @@ void setup() {
   right_motor.begin(MOTOR_R_SLP_PIN, MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
 
   stopBot();
-
+  speed = 1;
   left_motor.enableMotor();
   right_motor.enableMotor();
 
@@ -107,8 +119,8 @@ void setup() {
 
 void loop() {
   pollBroker();
-
-  switch (status) {
+  
+  switch (direction) {
     case 0:
       stopBot();
       break;
