@@ -41,8 +41,6 @@ void pollBroker() {
   }
 
   client.poll();
-  
-  delay(100);
 }
 
 void wifiInit() {
@@ -79,7 +77,7 @@ void moveBot() {
   else left_motor.directionBackward();
 
   if (rSpeed >= 0) right_motor.directionForward();
-  else right_motor.directionForward();
+  else right_motor.directionBackward();
 
   left_motor.setSpeed(abs(lSpeed));
   right_motor.setSpeed(abs(rSpeed));
@@ -108,6 +106,25 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(status);
+  pollBroker();
+
+  switch (status) {
+    case 0:
+      stopBot();
+      break;
+    case 1:
+      moveForward();
+      break;
+    case 2:
+      moveBackward();
+      break;
+    case 3:
+      moveLeft();
+      break;
+    case 4:
+      moveRight();
+      break;
+  }
+  
   delay(500);
 }
