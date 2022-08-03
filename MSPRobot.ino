@@ -90,7 +90,7 @@ void moveBot() {
 
   if (rSpeed >= 0) right_motor.directionForward();
   else right_motor.directionBackward();
-
+  
   left_motor.setSpeed(speed*abs(lSpeed));
   right_motor.setSpeed(speed*abs(rSpeed));
 }
@@ -108,6 +108,13 @@ void setup() {
   
   left_motor.begin(MOTOR_L_SLP_PIN, MOTOR_L_DIR_PIN, MOTOR_L_PWM_PIN);
   right_motor.begin(MOTOR_R_SLP_PIN, MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
+  
+  pinMode(BP_SW_PIN_0, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_1, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_2, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_3, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_4, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_5, INPUT_PULLUP);
 
   stopBot();
   speed = 1;
@@ -137,6 +144,18 @@ void loop() {
       moveRight();
       break;
   }
+  
+  if (digitalRead(BP_SW_PIN_0) == 0 ||
+      digitalRead(BP_SW_PIN_1) == 0 ||
+      digitalRead(BP_SW_PIN_2) == 0 ||
+      digitalRead(BP_SW_PIN_3) == 0 ||
+      digitalRead(BP_SW_PIN_4) == 0 ||
+      digitalRead(BP_SW_PIN_5) == 0) {
+    Serial.println("Collision detected");
+    stopBot();
+  }
+  
+  Serial.println(direction);
   
   delay(500);
 }
