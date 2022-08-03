@@ -3,9 +3,16 @@
 #include "SimpleRSLK.h"
 #include <driverlib.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <SPI.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+
+#include "Adafruit_TMP006.h"
+
+// TEMPERATURE VARIABLES
+int count = 0;
+Adafruit_TMP006 tmp006;
 
 // WIFI METHODS AND VARIABLES
 
@@ -24,12 +31,12 @@ void pollBroker() {
   while (!client.connected()) {
     Serial.print("Connecting... ");
 
-    if (!client.connect("energiaClient", "ng8165", "aio_YOoT86vFIEE2dhRchNNUb47Fen7j")) {
+    if (!client.connect("energiaClient", "ryanachen", "aio_ALPe40WNq4C5A7Hz089DIJA0zFo5")) {
       Serial.println("Connection failed.");
     } else {
       Serial.print("Connection successful. ");
       
-      if (client.subscribe("ng8165/feeds/robot.direction")) {
+      if (client.subscribe("ryanachen/feeds/msp-robot-direction")) {
         Serial.println("Subscription successful.");
         break;
       } else {
@@ -83,8 +90,8 @@ void moveBot() {
   right_motor.setSpeed(abs(rSpeed));
 }
 
-void moveLeft() { lSpeed = -20; rSpeed = 20; moveBot(); }
-void moveRight() { lSpeed = 20; rSpeed = -20; moveBot(); }
+void moveLeft() { lSpeed = -15; rSpeed = 15; moveBot(); }
+void moveRight() { lSpeed = 15; rSpeed = -15; moveBot(); }
 void moveForward() { lSpeed = 20; rSpeed = 20; moveBot(); }
 void moveBackward() { lSpeed = -20; rSpeed = -20; moveBot(); }
 void stopBot() { lSpeed = 0; rSpeed = 0; moveBot(); }
@@ -103,6 +110,12 @@ void setup() {
   right_motor.enableMotor();
 
   wifiInit();
+
+  if(!tmp006.begin(TMP006_CFG_8SAMPLE)){
+    Serial.println("No sensor found");
+    while(1);
+  }
+  
 }
 
 void loop() {
@@ -125,6 +138,19 @@ void loop() {
       moveRight();
       break;
   }
+  
+  if(count >= 6){
+    
+    float temp = tmp006.readDieTempC();
+    temp = (temp * 9/5) + 32;
+    
+    char str[50];
+    sprintf(str, "%0.2f", temp);
+    client.publish("ryanachen/feeds/msp-robot.temperature", str);
+
+    count = 0;
+  }
+  count++;
   
   delay(500);
 }
