@@ -8,11 +8,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-#include "Adafruit_TMP006.h"
-
-// TEMPERATURE VARIABLES
 int count = 0;
-Adafruit_TMP006 tmp006;
 
 // WIFI METHODS AND VARIABLES
 
@@ -86,12 +82,12 @@ void moveBot() {
   if (rSpeed >= 0) right_motor.directionForward();
   else right_motor.directionBackward();
 
-  left_motor.setSpeed(abs(lSpeed));
+  left_motor.setSpeed(1.02*abs(lSpeed));
   right_motor.setSpeed(abs(rSpeed));
 }
 
-void moveLeft() { lSpeed = -15; rSpeed = 15; moveBot(); }
-void moveRight() { lSpeed = 15; rSpeed = -15; moveBot(); }
+void moveLeft() { lSpeed = -10; rSpeed = 10; moveBot(); }
+void moveRight() { lSpeed = 10; rSpeed = -10; moveBot(); }
 void moveForward() { lSpeed = 20; rSpeed = 20; moveBot(); }
 void moveBackward() { lSpeed = -20; rSpeed = -20; moveBot(); }
 void stopBot() { lSpeed = 0; rSpeed = 0; moveBot(); }
@@ -103,6 +99,13 @@ void setup() {
   
   left_motor.begin(MOTOR_L_SLP_PIN, MOTOR_L_DIR_PIN, MOTOR_L_PWM_PIN);
   right_motor.begin(MOTOR_R_SLP_PIN, MOTOR_R_DIR_PIN, MOTOR_R_PWM_PIN);
+  
+  pinMode(BP_SW_PIN_0, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_1, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_2, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_3, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_4, INPUT_PULLUP);
+  pinMode(BP_SW_PIN_5, INPUT_PULLUP);
 
   stopBot();
 
@@ -110,11 +113,6 @@ void setup() {
   right_motor.enableMotor();
 
   wifiInit();
-
-  if(!tmp006.begin(TMP006_CFG_8SAMPLE)){
-    Serial.println("No sensor found");
-    while(1);
-  }
   
 }
 
@@ -139,6 +137,32 @@ void loop() {
       break;
   }
   
+  if(digitalRead(BP_SW_PIN_0) == 0){
+    Serial.println("Collision detected");
+    status = 0;
+  }
+  else if(digitalRead(BP_SW_PIN_1) == 0){
+    Serial.println("Collision detected");
+    status = 0;
+  }
+  else if(digitalRead(BP_SW_PIN_2) == 0){
+    Serial.println("Collision detected");
+    status = 0;
+  }
+  else if(digitalRead(BP_SW_PIN_3) == 0){
+    Serial.println("Collision detected");
+    status = 0;
+  }
+  else if(digitalRead(BP_SW_PIN_4) == 0){
+    Serial.println("Collision detected");
+    status = 0;
+  }
+  else if(digitalRead(BP_SW_PIN_5) == 0){
+    Serial.println("Collision detected");
+    status = 0;
+  }
+  Serial.println(status);
+  /*
   if(count >= 6){
     
     float temp = tmp006.readDieTempC();
@@ -151,6 +175,6 @@ void loop() {
     count = 0;
   }
   count++;
-  
+  */
   delay(500);
 }
