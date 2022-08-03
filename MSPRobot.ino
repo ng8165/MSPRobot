@@ -132,27 +132,12 @@ void loop() {
       moveRight();
       break;
   }
-  if(digitalRead(BP_SW_PIN_0) == 0){
-    Serial.println("Collision detected");
-    status = 0;
-  }
-  else if(digitalRead(BP_SW_PIN_1) == 0){
-    Serial.println("Collision detected");
-    status = 0;
-  }
-  else if(digitalRead(BP_SW_PIN_2) == 0){
-    Serial.println("Collision detected");
-    status = 0;
-  }
-  else if(digitalRead(BP_SW_PIN_3) == 0){
-    Serial.println("Collision detected");
-    status = 0;
-  }
-  else if(digitalRead(BP_SW_PIN_4) == 0){
-    Serial.println("Collision detected");
-    status = 0;
-  }
-  else if(digitalRead(BP_SW_PIN_5) == 0){
+  if (digitalRead(BP_SW_PIN_0) == 0 ||
+      digitalRead(BP_SW_PIN_1) == 0 ||
+      digitalRead(BP_SW_PIN_2) == 0 ||
+      digitalRead(BP_SW_PIN_3) == 0 ||
+      digitalRead(BP_SW_PIN_4) == 0 ||
+      digitalRead(BP_SW_PIN_5) == 0){
     Serial.println("Collision detected");
     status = 0;
   }
