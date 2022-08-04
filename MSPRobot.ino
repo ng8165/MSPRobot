@@ -33,7 +33,7 @@ void pollBroker() {
   while (!client.connected()) {
     Serial.print("Connecting... ");
 
-    if (!client.connect("energiaClient", "ryanachen", "aio_ALPe40WNq4C5A7Hz089DIJA0zFo5")) {
+    if (!client.connect("energiaClient", "ng8165", "aio_YOoT86vFIEE2dhRchNNUb47Fen7j")) {
       Serial.println("Connection failed.");
     } else {
       Serial.print("Connection successful. ");
@@ -161,6 +161,14 @@ void loop() {
   Serial.print(direction);
   Serial.print(" ");
   Serial.println(speed);
+  
+  int tempSensor = analogRead(A5);
+  float tempC = ((3.3*tempSensor/1023.0))/0.01;
+  float tempF = tempC*(9.0/5.0)+32.0;
+  Serial.println(tempF); // degrees Fahrenheit
+
+  int aqiSensor = analogRead(A10);
+  Serial.println(aqiSensor); // ppm CO2
   
   /*
   if(count >= 6){
