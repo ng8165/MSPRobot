@@ -10,6 +10,7 @@
 #include <PubSubClient.h>
 
 int count = 0;
+int toggle = 0;
 
 // WIFI METHODS AND VARIABLES
 
@@ -22,9 +23,9 @@ uint8_t direction, speed;
 void callback(char* topic, byte* payload, unsigned int length) {
   char* str = (char*) payload;
   
-  if (strcmp(topic, "ng8165/feeds/robot.direction") == 0) {
+  if (strcmp(topic, "ryanachen/feeds/msp-robot-direction") == 0) {
     direction = str[0] - '0';
-  } else if (strcmp(topic, "ng8165/feeds/robot.speed") == 0) {
+  } else if (strcmp(topic, "ryanachen/feeds/speed") == 0) {
     speed = str[0] - '0';
   }
 }
@@ -33,15 +34,15 @@ void pollBroker() {
   while (!client.connected()) {
     Serial.print("Connecting... ");
 
-    if (!client.connect("energiaClient", "ng8165", "aio_YOoT86vFIEE2dhRchNNUb47Fen7j")) {
+    if (!client.connect("energiaClient", "ryanachen", "aio_uWnL05y5P3xSEhlR4PUiSAn5AkUz")) {
       Serial.println("Connection failed.");
     } else {
       Serial.print("Connection successful. ");
       
-      if (client.subscribe("ng8165/feeds/robot.direction")) {
+      if (client.subscribe("ryanachen/feeds/msp-robot-direction")) {
         Serial.print("Direction successful. ");
 
-        if (client.subscribe("ng8165/feeds/robot.speed")) {
+        if (client.subscribe("ryanachen/feeds/speed")) {
           Serial.println("Speed successful.");
           break;
         } else {
@@ -161,29 +162,39 @@ void loop() {
   Serial.print(direction);
   Serial.print(" ");
   Serial.println(speed);
+
   
-  int tempSensor = analogRead(A5);
+  int tempSensor = analogRead(A19);
   float tempC = ((3.3*tempSensor/1023.0))/0.01;
   float tempF = tempC*(9.0/5.0)+32.0;
   Serial.println(tempF); // degrees Fahrenheit
 
-  int aqiSensor = analogRead(A10);
+  int aqiSensor = analogRead(A18);
   Serial.println(aqiSensor); // ppm CO2
+
   
-  /*
   if(count >= 6){
-    
-    float temp = tmp006.readDieTempC();
-    temp = (temp * 9/5) + 32;
-    
-    char str[50];
-    sprintf(str, "%0.2f", temp);
-    client.publish("ryanachen/feeds/msp-robot.temperature", str);
+
+    if(toggle == 0){
+      char str[50];
+      sprintf(str, "%0.2f", tempF);
+      if(client.publish("ryanachen/feeds/msp-robot.temperature", str)){
+        Serial.println("Temp Publish Succeeded");
+      }
+      toggle = 1;
+    }else if(toggle == 1){
+      char str[50];
+      sprintf(str, "%d", aqiSensor);
+      if(client.publish("ryanachen/feeds/msp-robot.air-quality", str)){
+        Serial.println("AQ Publish Succeeded");
+      }
+      toggle = 0;
+    }
 
     count = 0;
   }
   count++;
-  */
+  
   
   delay(500);
 }
